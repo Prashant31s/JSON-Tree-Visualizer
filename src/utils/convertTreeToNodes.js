@@ -5,7 +5,7 @@ let nodes = [];
 let edges = [];
 
 function getNodeTypeAndColor(node, isHighlighted = false) {
-  // If highlighted, use a special color
+  
   if (isHighlighted) {
     return { type: 'highlighted', color: '#ef4444' }; // Red for highlighted
   }

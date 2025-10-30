@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+
 import { Handle } from 'reactflow';
 import { useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
@@ -18,7 +18,6 @@ function JsonVisNode({ data, targetPosition, sourcePosition }) {
         const rect = event.currentTarget.getBoundingClientRect();
         const nodePath = data.path || '';
         
-        // Only set value if it's different from the path
         const nodeValue = data.value !== data.path ? data.value : undefined;
         
         if (nodePath) {

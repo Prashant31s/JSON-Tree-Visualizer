@@ -1,4 +1,4 @@
-'use client'; // ✅ Important for Zustand to work on the client
+'use client'; 
 
 import { applyEdgeChanges, applyNodeChanges } from 'reactflow';
 import { create } from 'zustand';
@@ -70,7 +70,6 @@ const useStore = create((set, get) => ({
       nodes: [], 
       edges: [], 
       needToRenderJson: { ...json },
-      // Reset search when new JSON is loaded
       searchPath: '',
       highlightedNodeIds: [],
       searchResults: [],
@@ -78,7 +77,6 @@ const useStore = create((set, get) => ({
     });
   },
   
-  // Search handlers
   setTreeData: (tree) => set({ treeData: tree }),
   setSearchPath: (path) => set({ searchPath: path }),
   setHighlightedNodeIds: (ids) => set({ highlightedNodeIds: ids }),

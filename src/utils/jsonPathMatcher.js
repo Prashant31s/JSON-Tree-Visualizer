@@ -1,11 +1,7 @@
-/**
- * Parse a JSON path string into parts
- * Supports: $.key, .key, key, [0], ['key'], ["key"]
- */
+
 export function parseJsonPath(path) {
   if (!path) return [];
   
-  // Remove leading $. or .
   let cleanPath = path.trim();
   if (cleanPath.startsWith('$.')) {
     cleanPath = cleanPath.slice(2);
@@ -65,9 +61,9 @@ export function parseJsonPath(path) {
   return parts;
 }
 
-/**
- * Build the full path for a node by traversing up the tree
- */
+
+//  Building the full path for a node by traversing up the tree
+
 export function getNodePath(node, allNodes) {
   const path = [];
   let currentNode = node;
@@ -87,13 +83,12 @@ export function getNodePath(node, allNodes) {
   return path;
 }
 
-/**
- * Check if a node matches the search path
- */
+
+//   Checking if a node matches the search path
+
 export function matchesPath(nodePath, searchParts) {
   if (searchParts.length === 0) return false;
   
-  // Check if the node path ends with the search parts
   if (nodePath.length < searchParts.length) return false;
   
   for (let i = 0; i < searchParts.length; i++) {
@@ -108,9 +103,9 @@ export function matchesPath(nodePath, searchParts) {
   return true;
 }
 
-/**
- * Find all nodes that match the search path
- */
+
+//  Finding all nodes that match the search path
+
 export function findNodesByPath(searchPath, treeRoot) {
   const searchParts = parseJsonPath(searchPath);
   if (searchParts.length === 0) return [];
@@ -118,7 +113,7 @@ export function findNodesByPath(searchPath, treeRoot) {
   const allNodes = [];
   const matchingNodes = [];
   
-  // Collect all nodes from the tree
+
   function collectNodes(node) {
     allNodes.push(node);
     if (node.children) {
@@ -128,7 +123,6 @@ export function findNodesByPath(searchPath, treeRoot) {
   
   collectNodes(treeRoot);
   
-  // Find matching nodes
   allNodes.forEach(node => {
     const nodePath = getNodePath(node, allNodes);
     if (matchesPath(nodePath, searchParts)) {

@@ -13,12 +13,9 @@ function Sidebar() {
   const textareaEl = useRef(null);
   const [error, setError] = useState(null);
   const jsonString = JSON.stringify(needToRenderJson, null, 2);
-
-  // Theme (dark / light)
   const [theme, setTheme] = useState('dark');
 
   useEffect(() => {
-    // Load persisted theme or use system preference
     const persisted = typeof window !== 'undefined' && localStorage.getItem('theme');
     if (persisted) {
       setTheme(persisted);
@@ -39,7 +36,7 @@ function Sidebar() {
     try {
       localStorage.setItem('theme', next);
     } catch (e) {
-      // ignore
+        console.error("Failed to persist theme:", e);
     }
   };
 
