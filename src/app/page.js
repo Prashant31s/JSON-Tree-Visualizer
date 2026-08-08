@@ -141,10 +141,8 @@ export default function Page() {
     );
     
     setTimeout(() => {
-      const viewportElement = document.querySelector(".react-flow__viewport");
-      
       import("html-to-image").then(({ toPng }) => {
-        toPng(viewportElement || reactFlowElement, {
+        toPng(reactFlowElement, {
           backgroundColor: '#1a1a1a',
           pixelRatio: 2,
           width: fullWidth,
@@ -154,7 +152,10 @@ export default function Page() {
           filter: (node) => {
             return !node.classList?.contains('react-flow__controls') &&
                   !node.classList?.contains('react-flow__panel') &&
-                  !node.classList?.contains('react-flow__attribution');
+                  !node.classList?.contains('react-flow__attribution') &&
+                  !node.classList?.contains('react-flow__background') &&
+                  !node.classList?.contains('json-minimap') &&
+                  !node.classList?.contains('search-suggestions');
           }
         })
           .then((dataUrl) => {
@@ -171,6 +172,77 @@ export default function Page() {
           })
           .catch((err) => {
             console.error("Failed to download:", err);
+            setViewport(originalViewport, { duration: 0 });
+          });
+      });
+    }, 1000);
+  };
+
+  const handleDownloadSvg = (customFilename = "json-tree") => {
+    const reactFlowElement = document.querySelector(".react-flow");
+    if (!reactFlowElement || !reactFlowHelpers) return;
+
+    const { getViewport, setViewport, getNodes } = reactFlowHelpers;
+    const originalViewport = getViewport();
+    
+    const allNodes = getNodes();
+    if (!allNodes || allNodes.length === 0) return;
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    
+    allNodes.forEach(node => {
+      const nodeWidth = node.width || 150;
+      const nodeHeight = node.height || 50;
+      minX = Math.min(minX, node.position.x);
+      minY = Math.min(minY, node.position.y);
+      maxX = Math.max(maxX, node.position.x + nodeWidth);
+      maxY = Math.max(maxY, node.position.y + nodeHeight);
+    });
+
+    const padding = 100;
+    const fullWidth = maxX - minX + padding * 2;
+    const fullHeight = maxY - minY + padding * 2;
+
+    setViewport(
+      {
+        x: -(minX - padding),
+        y: -(minY - padding),
+        zoom: 1
+      },
+      { duration: 0 }
+    );
+    
+    setTimeout(() => {
+      import("html-to-image").then(({ toSvg }) => {
+        toSvg(reactFlowElement, {
+          backgroundColor: '#1a1a1a',
+          width: fullWidth,
+          height: fullHeight,
+          cacheBust: true,
+          skipFonts: false,
+          filter: (node) => {
+            return !node.classList?.contains('react-flow__controls') &&
+                  !node.classList?.contains('react-flow__panel') &&
+                  !node.classList?.contains('react-flow__attribution') &&
+                  !node.classList?.contains('react-flow__background') &&
+                  !node.classList?.contains('json-minimap') &&
+                  !node.classList?.contains('search-suggestions');
+          }
+        })
+          .then((dataUrl) => {
+            const cleanName = (typeof customFilename === 'string' && customFilename.trim()) ? customFilename.trim() : "json-tree";
+            const downloadName = cleanName.endsWith('.svg') ? cleanName : `${cleanName}.svg`;
+            const link = document.createElement("a");
+            link.download = downloadName;
+            link.href = dataUrl;
+            link.click();
+            
+            setTimeout(() => {
+              setViewport(originalViewport, { duration: 300 });
+            }, 100);
+          })
+          .catch((err) => {
+            console.error("Failed to download SVG:", err);
             setViewport(originalViewport, { duration: 0 });
           });
       });
@@ -215,6 +287,7 @@ export default function Page() {
           searchResults={searchResults}
           searchPath={searchPath}
           onDownloadPng={handleDownload}
+          onDownloadSvg={handleDownloadSvg}
         />
       </div>
     </ReactFlowProvider>

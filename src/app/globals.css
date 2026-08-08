@@ -75,6 +75,18 @@ html {
   background-color: var(--bg);
 }
 
+.react-flow__edge-path {
+  stroke: #94a3b8;
+  stroke-width: 2px;
+}
+
+.react-flow__arrowhead,
+.react-flow__marker,
+.react-flow__marker path {
+  fill: #94a3b8;
+  stroke: #94a3b8;
+}
+
 .react-flow__background {
   color: #373737;
 }

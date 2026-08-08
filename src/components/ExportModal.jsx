@@ -20,6 +20,7 @@ const FORMAT_OPTIONS = [
   { id: 'xml', label: 'XML', ext: 'xml', mime: 'application/xml' },
   { id: 'jsonl', label: 'JSON Lines', ext: 'jsonl', mime: 'application/x-ndjson' },
   { id: 'png', label: 'PNG Image 🖼️', ext: 'png', mime: 'image/png' },
+  { id: 'svg', label: 'SVG Vector 📐', ext: 'svg', mime: 'image/svg+xml' },
 ];
 
 export default function ExportModal({
@@ -29,6 +30,7 @@ export default function ExportModal({
   searchResults = [],
   searchPath = '',
   onDownloadPng,
+  onDownloadSvg,
 }) {
   const [selectedFormat, setSelectedFormat] = useState('json');
   const [scope, setScope] = useState('full'); // 'full' | 'filtered'
@@ -65,7 +67,11 @@ export default function ExportModal({
   // Generate output content based on selected format and settings
   const formattedContent = useMemo(() => {
     if (selectedFormat === 'png') {
-      return `// High-Resolution Visual PNG Diagram\n// Format: PNG Image (.png)\n// Render Quality: 2x Ultra HD Pixel Ratio\n// Background: Theme Canvas Background (#1a1a1a)\n\n// Click "Download .png File" below to generate and export the full visual tree structure as a high-resolution PNG image.`;
+      return `// High-Resolution Visual PNG Diagram\n// Format: PNG Image (.png)\n// Render Quality: 2x Ultra HD Pixel Ratio\n// Background: Theme Canvas Background (#1a1a1a)\n\n// Click "Download .png Diagram" below to generate and export the full visual tree structure as a high-resolution PNG image.`;
+    }
+
+    if (selectedFormat === 'svg') {
+      return `// Scalable Vector Graphics (SVG Diagram)\n// Format: SVG Vector (.svg)\n// Render Quality: Infinite Scalability (Vector)\n// Background: Theme Canvas Background (#1a1a1a)\n\n// Click "Download .svg Vector" below to generate and export the full visual tree structure as a scalable SVG vector file.`;
     }
 
     if (!activeData && activeData !== 0 && activeData !== false) return '';
@@ -96,7 +102,7 @@ export default function ExportModal({
   const activeFormatObj = FORMAT_OPTIONS.find((f) => f.id === selectedFormat) || FORMAT_OPTIONS[0];
 
   const handleCopy = async () => {
-    if (selectedFormat === 'png') return;
+    if (['png', 'svg'].includes(selectedFormat)) return;
     const success = await copyToClipboard(formattedContent);
     if (success) {
       setCopied(true);
@@ -113,6 +119,13 @@ export default function ExportModal({
       }
       return;
     }
+    if (selectedFormat === 'svg') {
+      if (onDownloadSvg) {
+        onDownloadSvg(cleanFilename);
+        onClose();
+      }
+      return;
+    }
     const finalFilename = `${cleanFilename}.${activeFormatObj.ext}`;
     downloadFormattedFile(formattedContent, finalFilename, activeFormatObj.mime);
   };
@@ -120,6 +133,7 @@ export default function ExportModal({
   if (!isOpen || !mounted) return null;
 
   const hasFilter = searchResults && searchResults.length > 0;
+  const isImageFormat = ['png', 'svg'].includes(selectedFormat);
 
   return createPortal(
     <div className="export-modal-backdrop" onClick={onClose}>
@@ -174,7 +188,7 @@ export default function ExportModal({
             {/* Scope & Settings Row */}
             <div className="export-modal-settings-grid">
               {/* Data Scope Toggle */}
-              {hasFilter && selectedFormat !== 'png' && (
+              {hasFilter && !isImageFormat && (
                 <div className="export-modal-field">
                   <label className="export-modal-label">Data Scope</label>
                   <div className="export-modal-segmented">
@@ -236,7 +250,7 @@ export default function ExportModal({
           <div className="export-modal-preview-section">
             <div className="export-modal-preview-header">
               <span className="export-modal-preview-title">
-                {selectedFormat === 'png'
+                {isImageFormat
                   ? 'Visual Diagram Preview Info'
                   : `Preview (${formattedContent.split('\n').length} lines, ${new Blob([formattedContent]).size} bytes)`}
               </span>
@@ -252,7 +266,7 @@ export default function ExportModal({
 
         {/* Footer Actions */}
         <div className="export-modal-footer">
-          {selectedFormat !== 'png' && (
+          {!isImageFormat && (
             <button
               type="button"
               className="export-modal-btn export-modal-btn--secondary"
@@ -268,6 +282,8 @@ export default function ExportModal({
           >
             {selectedFormat === 'png'
               ? '🖼️ Download .png Diagram'
+              : selectedFormat === 'svg'
+              ? '📐 Download .svg Vector'
               : `💾 Download .${activeFormatObj.ext} File`}
           </button>
         </div>
