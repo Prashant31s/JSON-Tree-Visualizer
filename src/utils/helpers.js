@@ -61,38 +61,56 @@ export  const getLayoutedElements = (nodes, edges, options = {}) => {
 
 export function InnerFlow(props) {
   const { fitView, getViewport, setViewport, getNodes } = useReactFlow();
+  const {
+    nodes,
+    edges,
+    lastSearchResult,
+    setReactFlowHelpers,
+  } = props;
 
   useEffect(() => {
-    if (!props.lastSearchResult) {
-      fitView({ nodes: [props.nodes[0], props.nodes[0]?.id], minZoom: 0.1, padding: 8 });
+    if (!lastSearchResult && nodes.length > 0) {
+      window.requestAnimationFrame(() => {
+        fitView({
+          nodes: nodes.map((node) => ({ id: node.id })),
+          minZoom: 0.02,
+          maxZoom: 1,
+          padding: 0.2,
+          duration: 300,
+        });
+      });
     }
-  }, [props.nodes, props.edges, fitView, props.lastSearchResult]);
+  }, [nodes, edges, fitView, lastSearchResult]);
 
   useEffect(() => {
-    if (props.lastSearchResult) {
+    if (lastSearchResult) {
       setTimeout(() => {
         fitView({
-          nodes: props.lastSearchResult.nodes,
+          nodes: lastSearchResult.nodes.map((node) => ({ id: node.id })),
           duration: 800,
-          padding: 50
+          minZoom: 0.02,
+          maxZoom: 1.5,
+          padding: 0.4,
         });
       }, 100);
     }
-  }, [props.lastSearchResult, fitView]);
+  }, [lastSearchResult, fitView]);
 
   useEffect(() => {
-    props.setReactFlowHelpers?.({ fitView, getViewport, setViewport, getNodes });
-  }, [fitView, getViewport, setViewport, getNodes]);
+    setReactFlowHelpers?.({ fitView, getViewport, setViewport, getNodes });
+  }, [setReactFlowHelpers, fitView, getViewport, setViewport, getNodes]);
 
   return (
     <ReactFlow
-      nodes={props.nodes}
-      edges={props.edges}
+      nodes={nodes}
+      edges={edges}
       nodeTypes={props.nodeTypes}
       edgeTypes={props.edgeTypes}
       defaultEdgeOptions={props.defaultEdgeOptions}
       onNodesChange={props.onNodesChange}
       onEdgesChange={props.onEdgesChange}
+      minZoom={0.02}
+      maxZoom={1.5}
     >
       <Background gap={30} color="#373737" variant={BackgroundVariant.Lines} />
       <Controls showInteractive={false} />      
