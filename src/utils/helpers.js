@@ -323,7 +323,7 @@ export function InnerFlow(props) {
             )}
           </div>
           <button
-            onClick={props.handleSearch}
+            onClick={() => props.handleSearch()}
             style={{ 
               padding: '8px 16px', 
               backgroundColor: '#10b981', 

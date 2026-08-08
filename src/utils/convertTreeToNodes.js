@@ -84,20 +84,21 @@ function addChildNode(node, parentNode, highlightedIds = [], parentPath = []) {
     parent: parentNode.id,
   };
   
-  const edgeColor = isHighlighted ? '#ef4444' : '#94a3b8';
+  const edgeColor = isHighlighted ? '#f87171' : '#4b5563';
   const newEdge = {
     id: nanoid(),
     source: `${parentNode.id}`,
     target: `${node.id}`,
     animated: isHighlighted,
     style: {
-      stroke: edgeColor,
-      strokeWidth: isHighlighted ? 2.5 : 2,
+      stroke: isHighlighted ? '#f87171' : '#4b5563',
+      strokeWidth: isHighlighted ? 2.5 : 1.8,
+      strokeLinecap: 'round',
     },
     markerEnd: {
       type: MarkerType.ArrowClosed,
-      width: 18,
-      height: 18,
+      width: 14,
+      height: 14,
       color: edgeColor,
     },
   };

@@ -76,7 +76,9 @@ export default function Page() {
   );
 
   const handleSearch = useCallback((selectedPath = searchPath) => {
-    if (!treeData || !selectedPath.trim()) {
+    // Guard: if a SyntheticEvent or non-string was accidentally passed, fall back to searchPath
+    const path = typeof selectedPath === 'string' ? selectedPath : searchPath;
+    if (!treeData || !path.trim()) {
       // Reset highlighting
       setHighlightedNodeIds([]);
       setSearchResults([]);
@@ -85,7 +87,7 @@ export default function Page() {
       return;
     }
 
-    const results = findNodesByPath(selectedPath, treeData);
+    const results = findNodesByPath(path, treeData);
     setSearchResults(results);
 
     if (results.length > 0) {

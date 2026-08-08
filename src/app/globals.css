@@ -422,56 +422,35 @@ button:focus-visible {
 }
 
 
-/* can be removed later */
+/* Node label — layout only; visual styling is applied inline in JsonVisNode.jsx */
 .jsonVisNode__label {
-  background-color: var(--node-color, #3b82f6);
-  color: white;
-  padding: 10px 15px;
-  border-radius: 8px;
-    min-width: 80px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  min-width: 120px;
+  max-width: 240px;
 }
 
 .jsonVisNode__label ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.jsonVisNode__label li {
-    margin-bottom: 4px;
-    font-weight: 500;
-    text-align: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .jsonVisNode__label__key {
-    font-weight: 600;
+  font-weight: 600;
+  font-family: var(--font-geist-mono);
 }
 
-.node-tooltip {
-    position: fixed;
-    background-color: rgba(0, 0, 0, 0.9);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 14px;
-    pointer-events: none;
-    z-index: 1000;
-    max-width: 300px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+/* ReactFlow node wrapper — remove default white border and shadow */
+.react-flow__node {
+  box-shadow: none !important;
+  background: transparent !important;
+  border: none !important;
 }
 
-.node-tooltip__path {
-    color: #10b981;
-    margin-bottom: 4px;
-    font-family: var(--font-geist-mono);
-    font-size: 12px;
-}
-
-.node-tooltip__value {
-    color: white;
-    word-break: break-word;
-    font-family: var(--font-geist-mono);
+/* Node hover lift */
+.react-flow__node:hover > div {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+  transform: translateY(-2px) scale(1.03) !important;
 }
 
 /* ==========================================================================
