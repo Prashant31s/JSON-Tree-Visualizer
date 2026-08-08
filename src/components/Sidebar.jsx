@@ -70,6 +70,7 @@ function Sidebar() {
       <div className="sidebar__title-cont">
         <h1 className="sidebar__title-cont__title">JSON Visualizer</h1>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+
           <button
             onClick={toggleTheme}
             title="Toggle theme"

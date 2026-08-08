@@ -357,9 +357,22 @@ export function InnerFlow(props) {
         <button onClick={() => props.onLayout({ direction: "RIGHT" })}>
           Horizontal layout
         </button>
-        <button onClick={() => {props.handleDownload()}}>
-          Download PNG
-        </button>
+        {props.onOpenExport && (
+          <button
+            type="button"
+            onClick={props.onOpenExport}
+            style={{
+              backgroundColor: '#3b82f6',
+              color: '#ffffff',
+              fontWeight: '500',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            Export Data 📤
+          </button>
+        )}
       </Panel>
     </ReactFlow>
   );

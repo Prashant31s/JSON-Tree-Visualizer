@@ -9,6 +9,7 @@ import JsonVisEdge from "../custom-edges/JsonVisEdge";
 import { shallow } from "zustand/shallow";
 
 import Sidebar from "../components/Sidebar";
+import ExportModal from "../components/ExportModal";
 import useStore from "../store/useStore";
 import convertJsonToTree from "../utils/convertJsonToTree";
 import convertTreeToNodes from "../utils/convertTreeToNodes";
@@ -22,15 +23,12 @@ const nodeTypes = { jsonVis: JsonVisNode };
 const edgeTypes = { jsonVis: JsonVisEdge };
 const defaultEdgeOpt = { type: "jsonVis" };
 
-
-
 const elkOptions = {
   "elk.algorithm": "layered",
   "elk.layered.spacing.nodeNodeBetweenLayers": "200",
   "elk.spacing.nodeNode": "150",
   "elk.edgeRouting": "SPLINES",
 };
-
 
 export default function Page() {
   const {
@@ -52,6 +50,7 @@ export default function Page() {
   } = useStore(selector, shallow);
   const [lastSearchResult, setLastSearchResult] = useState(null);
   const [reactFlowHelpers, setReactFlowHelpers] = useState(null);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const onLayout = useCallback(
     ({ direction }, initialNodes = null, highlightIds = []) => {
@@ -76,8 +75,6 @@ export default function Page() {
     [needToRenderJson, setNodes, setEdges, setTreeData]
   );
 
-  
-  
   const handleSearch = useCallback((selectedPath = searchPath) => {
     if (!treeData || !selectedPath.trim()) {
       // Reset highlighting
@@ -107,7 +104,7 @@ export default function Page() {
     }
   }, [treeData, searchPath, setHighlightedNodeIds, setSearchResults, onLayout]);
 
-  const handleDownload = () => {
+  const handleDownload = (customFilename = "json-tree") => {
     const reactFlowElement = document.querySelector(".react-flow");
     if (!reactFlowElement || !reactFlowHelpers) return;
 
@@ -161,8 +158,10 @@ export default function Page() {
           }
         })
           .then((dataUrl) => {
+            const cleanName = (typeof customFilename === 'string' && customFilename.trim()) ? customFilename.trim() : "json-tree";
+            const downloadName = cleanName.endsWith('.png') ? cleanName : `${cleanName}.png`;
             const link = document.createElement("a");
-            link.download = "json-tree.png";
+            link.download = downloadName;
             link.href = dataUrl;
             link.click();
             
@@ -204,9 +203,19 @@ export default function Page() {
             lastSearchResult={lastSearchResult}
             setReactFlowHelpers={setReactFlowHelpers}
             handleDownload={handleDownload}
+            onOpenExport={() => setIsExportModalOpen(true)}
           />
         </div>
         <Sidebar />
+
+        <ExportModal
+          isOpen={isExportModalOpen}
+          onClose={() => setIsExportModalOpen(false)}
+          jsonData={needToRenderJson}
+          searchResults={searchResults}
+          searchPath={searchPath}
+          onDownloadPng={handleDownload}
+        />
       </div>
     </ReactFlowProvider>
   );
