@@ -1,6 +1,6 @@
 
 import { Handle } from 'reactflow';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 function JsonVisNode({ data, targetPosition, sourcePosition }) {
@@ -13,6 +13,25 @@ function JsonVisNode({ data, targetPosition, sourcePosition }) {
     const isHighlighted = data.isHighlighted || false;
     
     const [tooltipData, setTooltipData] = useState(null);
+    const [copied, setCopied] = useState(false);
+    const copiedTimeoutRef = useRef(null);
+
+    const copyToClipboard = useCallback(async (text) => {
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+            return;
+        }
+
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+    }, []);
     
     const handleMouseEnter = useCallback((event) => {
         const rect = event.currentTarget.getBoundingClientRect();
@@ -33,6 +52,35 @@ function JsonVisNode({ data, targetPosition, sourcePosition }) {
     const handleMouseLeave = useCallback(() => {
         setTooltipData(null);
     }, []);
+
+    useEffect(() => {
+        return () => {
+            if (copiedTimeoutRef.current) {
+                window.clearTimeout(copiedTimeoutRef.current);
+            }
+        };
+    }, []);
+
+    const handleCopyPath = useCallback(async (event) => {
+        event.stopPropagation();
+
+        if (!data.path) return;
+
+        try {
+            await copyToClipboard(data.path);
+            setCopied(true);
+
+            if (copiedTimeoutRef.current) {
+                window.clearTimeout(copiedTimeoutRef.current);
+            }
+
+            copiedTimeoutRef.current = window.setTimeout(() => {
+                setCopied(false);
+            }, 1200);
+        } catch (error) {
+            console.error('Failed to copy path:', error);
+        }
+    }, [copyToClipboard, data.path]);
     
     return (
         <>
@@ -41,6 +89,8 @@ function JsonVisNode({ data, targetPosition, sourcePosition }) {
                 className='jsonVisNode__label'
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
+                onClick={handleCopyPath}
+                title={`Copy path: ${data.path || '$'}`}
                 style={{
                     backgroundColor: nodeColor,
                     color: 'white',
@@ -52,7 +102,8 @@ function JsonVisNode({ data, targetPosition, sourcePosition }) {
                         : '0 2px 4px rgba(0,0,0,0.1)',
                     transform: isHighlighted ? 'scale(1.1)' : 'scale(1)',
                     transition: 'all 0.3s ease',
-                    border: isHighlighted ? '2px solid white' : 'none'
+                    border: isHighlighted ? '2px solid white' : 'none',
+                    cursor: 'copy'
                 }}
             >
                 <ul style={{ 
@@ -91,7 +142,7 @@ function JsonVisNode({ data, targetPosition, sourcePosition }) {
                     }}
                 >
                     <div className="node-tooltip__path">
-                        {tooltipData.path}
+                        {copied ? `Copied ${tooltipData.path}` : tooltipData.path}
                     </div>
                     {tooltipData.value && (
                         <div className="node-tooltip__value">

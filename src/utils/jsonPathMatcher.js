@@ -61,6 +61,22 @@ export function parseJsonPath(path) {
   return parts;
 }
 
+export function formatJsonPath(pathParts) {
+  if (!pathParts || pathParts.length === 0) return '$';
+
+  return pathParts.reduce((path, part) => {
+    if (/^\d+$/.test(part)) {
+      return `${path}[${part}]`;
+    }
+
+    if (/^[A-Za-z_$][\w$]*$/.test(part)) {
+      return `${path}.${part}`;
+    }
+
+    return `${path}[${JSON.stringify(part)}]`;
+  }, '$');
+}
+
 
 //  Building the full path for a node by traversing up the tree
 

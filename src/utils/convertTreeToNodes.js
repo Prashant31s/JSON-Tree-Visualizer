@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { getNodePath } from './jsonPathMatcher';
+import { formatJsonPath } from './jsonPathMatcher';
 
 let nodes = [];
 let edges = [];
@@ -39,12 +39,13 @@ function addRootNode(node, highlightedIds = []) {
   const isHighlighted = highlightedIds.includes(node.id);
   const { color } = getNodeTypeAndColor(node, isHighlighted);
   
-  const nodePath = getNodePath(node, nodes);
+  const nodePath = [];
   const newNode = {
     id: node.id,
     data: { 
       label: node.value,
-      path: nodePath.join('.'),
+      path: formatJsonPath(nodePath),
+      pathParts: nodePath,
       value: node.value,
       color: isHighlighted ? color : '#3b82f6',
       isHighlighted
@@ -56,18 +57,23 @@ function addRootNode(node, highlightedIds = []) {
   nodes = [...nodes, newNode];
 }
 
-function addChildNode(node, parentNode, highlightedIds = []) {
+function addChildNode(node, parentNode, highlightedIds = [], parentPath = []) {
   const isHighlighted = highlightedIds.includes(node.id);
   const { color } = getNodeTypeAndColor(node, isHighlighted);
   
-  const nodePath = getNodePath(node, nodes);
+  const isPrimitiveValueNode =
+    (!node.children || node.children.length === 0) &&
+    parentNode.children?.length === 1 &&
+    parentNode.children[0].id === node.id;
+  const nodePath = isPrimitiveValueNode ? parentPath : [...parentPath, node.key];
   const newNode = {
     id: node.id,
     data: {
       label: typeof node.value === "string" || typeof node.value === "number" || typeof node.value === "boolean"
         ? node.value
         : node.value,
-      path: nodePath.join('.'),
+      path: formatJsonPath(nodePath),
+      pathParts: nodePath,
       value: node.value,
       color: color,
       isHighlighted
@@ -89,14 +95,19 @@ function addChildNode(node, parentNode, highlightedIds = []) {
   edges = [...edges, newEdge];
 }
 
-function traverseNodeChild(arrayOfNode, parentNode, highlightedIds = []) {
+function traverseNodeChild(arrayOfNode, parentNode, highlightedIds = [], parentPath = []) {
   if (arrayOfNode.length <= 0) {
     return;
   }
   arrayOfNode.forEach((node) => {
-    addChildNode(node, parentNode, highlightedIds);
+    const isPrimitiveValueNode =
+      (!node.children || node.children.length === 0) &&
+      parentNode.children?.length === 1 &&
+      parentNode.children[0].id === node.id;
+    const nodePath = isPrimitiveValueNode ? parentPath : [...parentPath, node.key];
+    addChildNode(node, parentNode, highlightedIds, parentPath);
     if (node.children && node.children.length > 0) {
-      traverseNodeChild(node.children, node, highlightedIds);
+      traverseNodeChild(node.children, node, highlightedIds, nodePath);
     }
   });
 }
@@ -108,7 +119,7 @@ function convertTreeToNodes(nodeTree, isRoot = false, highlightedIds = []) {
     addRootNode(nodeTree, highlightedIds);
     convertTreeToNodes(nodeTree, false, highlightedIds);
   } else {
-    traverseNodeChild(nodeTree.children, nodeTree, highlightedIds);
+    traverseNodeChild(nodeTree.children, nodeTree, highlightedIds, []);
   }
 
   return [nodes, edges];
