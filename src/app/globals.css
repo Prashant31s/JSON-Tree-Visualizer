@@ -78,6 +78,37 @@ html {
 .react-flow__background {
   color: #373737;
 }
+
+.json-minimap {
+  background-color: var(--bg-sidebar-clr);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+}
+
+.json-minimap svg {
+  background-color: var(--bg-sidebar-clr);
+}
+
+.json-minimap .react-flow__minimap-mask {
+  fill: rgba(0, 0, 0, 0.45);
+  stroke: rgba(255, 255, 255, 0.16);
+}
+
+.json-minimap .react-flow__minimap-node {
+  stroke-width: 2;
+}
+
+[data-theme="light"] .json-minimap {
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.14);
+}
+
+[data-theme="light"] .json-minimap .react-flow__minimap-mask {
+  fill: rgba(15, 23, 42, 0.08);
+}
+
 .react-flow__node {
   background: transparent;
 }
@@ -238,6 +269,20 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+[data-theme="dark"] {
+  --bg: #242424;
+  --text: rgba(255, 255, 255, 0.87);
+  --muted: rgba(255,255,255,0.7);
+  --bg-sidebar-clr: #313131;
+  --node-color: #3b82f6;
+  --highlight-color: #ef4444;
+  --accent: #6366f1;
+}
+
+[data-theme="dark"] button {
+  background-color: var(--bg-sidebar-clr);
 }
 
 

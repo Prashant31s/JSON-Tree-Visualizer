@@ -6,6 +6,7 @@ import {
   BackgroundVariant,
   useReactFlow,
   Panel,
+  MiniMap,
 } from "reactflow";
 import ELK from "elkjs/lib/elk.bundled.js";
 
@@ -113,6 +114,16 @@ export function InnerFlow(props) {
       maxZoom={1.5}
     >
       <Background gap={30} color="#373737" variant={BackgroundVariant.Lines} />
+      <MiniMap
+        className="json-minimap"
+        nodeColor={(node) => node.data?.color || "#3b82f6"}
+        nodeStrokeColor={(node) => node.data?.isHighlighted ? "#ffffff" : "rgba(255,255,255,0.35)"}
+        nodeBorderRadius={4}
+        maskColor="rgba(0, 0, 0, 0.45)"
+        maskStrokeColor="rgba(255, 255, 255, 0.16)"
+        pannable
+        zoomable
+      />
       <Controls showInteractive={false} />      
       <Panel position="top-left" className="search-panel">
         <div style={{ 
