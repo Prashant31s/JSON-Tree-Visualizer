@@ -70,6 +70,7 @@ export function InnerFlow(props) {
   } = props;
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
+  const [zoomLevel, setZoomLevel] = useState(1);
   const searchQuery = props.searchPath.trim().toLowerCase();
   const pathSuggestions = useMemo(() => {
     if (!searchQuery) return [];
@@ -156,6 +157,28 @@ export function InnerFlow(props) {
     }
   };
 
+  const handleMove = (_event, viewport) => {
+    setZoomLevel(viewport.zoom);
+  };
+
+  const setZoomPreset = (zoom) => {
+    const viewport = getViewport();
+    setViewport({ ...viewport, zoom }, { duration: 300 });
+    setZoomLevel(zoom);
+  };
+
+  const fitAllNodes = () => {
+    if (nodes.length === 0) return;
+
+    fitView({
+      nodes: nodes.map((node) => ({ id: node.id })),
+      minZoom: 0.02,
+      maxZoom: 1,
+      padding: 0.2,
+      duration: 300,
+    });
+  };
+
   useEffect(() => {
     if (!lastSearchResult && nodes.length > 0) {
       window.requestAnimationFrame(() => {
@@ -197,6 +220,7 @@ export function InnerFlow(props) {
       defaultEdgeOptions={props.defaultEdgeOptions}
       onNodesChange={props.onNodesChange}
       onEdgesChange={props.onEdgesChange}
+      onMove={handleMove}
       minZoom={0.02}
       maxZoom={1.5}
     >
@@ -212,6 +236,21 @@ export function InnerFlow(props) {
         zoomable
       />
       <Controls showInteractive={false} />      
+      <Panel position="bottom-center" className="zoom-panel">
+        <span className="zoom-panel__value">{Math.round(zoomLevel * 100)}%</span>
+        <button type="button" onClick={() => setZoomPreset(0.25)}>
+          25%
+        </button>
+        <button type="button" onClick={() => setZoomPreset(0.5)}>
+          50%
+        </button>
+        <button type="button" onClick={() => setZoomPreset(1)}>
+          100%
+        </button>
+        <button type="button" onClick={fitAllNodes}>
+          Fit
+        </button>
+      </Panel>
       <Panel position="top-left" className="search-panel">
         <div style={{ 
           display: 'flex', 
