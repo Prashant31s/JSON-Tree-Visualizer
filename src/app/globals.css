@@ -76,15 +76,34 @@ html {
 }
 
 .react-flow__edge-path {
-  stroke: #94a3b8;
-  stroke-width: 2px;
+  /* Colour is set per-edge by JsonVisEdge — don't override here */
+  stroke: transparent;
+  stroke-width: 0;
 }
 
+/* ReactFlow SVG edge wrapper: allow overflow so glow isn't clipped */
+.react-flow__edge {
+  overflow: visible;
+}
+
+.react-flow__edge:hover path {
+  filter: brightness(1.3);
+  transition: filter 0.2s ease;
+}
+
+/* Arrowhead markers inherit color from the edge stroke */
 .react-flow__arrowhead,
 .react-flow__marker,
 .react-flow__marker path {
-  fill: #94a3b8;
-  stroke: #94a3b8;
+  /* Colours are driven by markerEnd.color on each edge */
+  fill: currentColor;
+  stroke: none;
+}
+
+/* Pulse animation for highlighted / search-match edges */
+@keyframes edgePulse {
+  0%, 100% { opacity: 1;   stroke-width: 2.5; }
+  50%       { opacity: 0.6; stroke-width: 3.5; }
 }
 
 .react-flow__background {

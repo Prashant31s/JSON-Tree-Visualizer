@@ -1,5 +1,4 @@
 import { nanoid } from "nanoid";
-import { MarkerType } from "reactflow";
 import { formatJsonPath } from './jsonPathMatcher';
 
 let nodes = [];
@@ -84,23 +83,20 @@ function addChildNode(node, parentNode, highlightedIds = [], parentPath = []) {
     parent: parentNode.id,
   };
   
-  const edgeColor = isHighlighted ? '#f87171' : '#4b5563';
+  // Edge color matches target node type for semantic clarity
+  const edgeColor = isHighlighted ? '#f87171' : color;
   const newEdge = {
     id: nanoid(),
     source: `${parentNode.id}`,
     target: `${node.id}`,
-    animated: isHighlighted,
+    animated: false,
+    type: 'jsonVis',
     style: {
-      stroke: isHighlighted ? '#f87171' : '#4b5563',
-      strokeWidth: isHighlighted ? 2.5 : 1.8,
+      stroke: edgeColor,
+      strokeWidth: isHighlighted ? 2.5 : 1.6,
       strokeLinecap: 'round',
     },
-    markerEnd: {
-      type: MarkerType.ArrowClosed,
-      width: 14,
-      height: 14,
-      color: edgeColor,
-    },
+    // markerEnd is handled inside JsonVisEdge via a custom <marker> element
   };
 
   nodes = [...nodes, newNode];
