@@ -78,8 +78,8 @@ export default function Page() {
 
   
   
-  const handleSearch = useCallback(() => {
-    if (!treeData || !searchPath.trim()) {
+  const handleSearch = useCallback((selectedPath = searchPath) => {
+    if (!treeData || !selectedPath.trim()) {
       // Reset highlighting
       setHighlightedNodeIds([]);
       setSearchResults([]);
@@ -88,7 +88,7 @@ export default function Page() {
       return;
     }
 
-    const results = findNodesByPath(searchPath, treeData);
+    const results = findNodesByPath(selectedPath, treeData);
     setSearchResults(results);
 
     if (results.length > 0) {
@@ -211,4 +211,3 @@ export default function Page() {
     </ReactFlowProvider>
   );
 }
-

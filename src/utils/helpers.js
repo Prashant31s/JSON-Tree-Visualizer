@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ReactFlow,
   Controls,
@@ -68,6 +68,93 @@ export function InnerFlow(props) {
     lastSearchResult,
     setReactFlowHelpers,
   } = props;
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
+  const searchQuery = props.searchPath.trim().toLowerCase();
+  const pathSuggestions = useMemo(() => {
+    if (!searchQuery) return [];
+
+    const uniqueSuggestions = new Map();
+
+    nodes.forEach((node) => {
+      const path = node.data?.path;
+      const pathParts = node.data?.pathParts || [];
+      const key = pathParts[pathParts.length - 1] || path;
+
+      if (!path || path === '$' || uniqueSuggestions.has(path)) return;
+
+      const normalizedKey = String(key).toLowerCase();
+      const normalizedPath = path.toLowerCase();
+
+      if (normalizedKey.includes(searchQuery) || normalizedPath.includes(searchQuery)) {
+        uniqueSuggestions.set(path, {
+          path,
+          key,
+          color: node.data?.color || '#3b82f6',
+        });
+      }
+    });
+
+    return Array.from(uniqueSuggestions.values())
+      .sort((firstSuggestion, secondSuggestion) => {
+        const firstDepth = firstSuggestion.path.split(/\.|\[/).length;
+        const secondDepth = secondSuggestion.path.split(/\.|\[/).length;
+
+        if (firstDepth !== secondDepth) {
+          return firstDepth - secondDepth;
+        }
+
+        return firstSuggestion.path.localeCompare(secondSuggestion.path);
+      })
+      .slice(0, 8);
+  }, [nodes, searchQuery]);
+
+  const selectSuggestion = (path) => {
+    props.setSearchPath(path);
+    setShowSuggestions(false);
+    setActiveSuggestionIndex(-1);
+    props.handleSearch(path);
+  };
+
+  const handleSearchKeyDown = (event) => {
+    const hasSuggestions = showSuggestions && pathSuggestions.length > 0;
+
+    if (event.key === 'ArrowDown' && pathSuggestions.length > 0) {
+      event.preventDefault();
+      setShowSuggestions(true);
+      setActiveSuggestionIndex((currentIndex) =>
+        currentIndex < pathSuggestions.length - 1 ? currentIndex + 1 : 0
+      );
+      return;
+    }
+
+    if (event.key === 'ArrowUp' && hasSuggestions) {
+      event.preventDefault();
+      setActiveSuggestionIndex((currentIndex) =>
+        currentIndex > 0 ? currentIndex - 1 : pathSuggestions.length - 1
+      );
+      return;
+    }
+
+    if (event.key === 'Enter') {
+      event.preventDefault();
+
+      if (hasSuggestions && pathSuggestions[activeSuggestionIndex]) {
+        selectSuggestion(pathSuggestions[activeSuggestionIndex].path);
+        return;
+      }
+
+      setShowSuggestions(false);
+      setActiveSuggestionIndex(-1);
+      props.handleSearch();
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      setShowSuggestions(false);
+      setActiveSuggestionIndex(-1);
+    }
+  };
 
   useEffect(() => {
     if (!lastSearchResult && nodes.length > 0) {
@@ -135,22 +222,67 @@ export function InnerFlow(props) {
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
           backgroundColor: 'var(--bg-sidebar-clr)'
         }}>
-          <input
-            type="text"
-            value={props.searchPath}
-            onChange={(e) => props.setSearchPath(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && props.handleSearch()}
-            placeholder="$.user.address.city, items[0].name"
-            style={{ 
-              flex: 1,
-              minWidth: '300px',
-              padding: '8px 12px', 
-              borderRadius: '5px',
-              border: '1px solid rgba(0,0,0,0.12)',
-              fontSize: '14px',
-              backgroundColor: 'var(--bg-sidebar-clr)',
-            }}
-          />
+          <div className="search-input-wrap">
+            <input
+              type="text"
+              value={props.searchPath}
+              onChange={(e) => {
+                props.setSearchPath(e.target.value);
+                setShowSuggestions(true);
+                setActiveSuggestionIndex(0);
+              }}
+              onFocus={() => {
+                setShowSuggestions(true);
+                setActiveSuggestionIndex(0);
+              }}
+              onBlur={() => window.setTimeout(() => setShowSuggestions(false), 120)}
+              onKeyDown={handleSearchKeyDown}
+              placeholder="$.user.address.city, items[0].name"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-controls="search-suggestions"
+              aria-expanded={showSuggestions && pathSuggestions.length > 0}
+              aria-activedescendant={
+                pathSuggestions[activeSuggestionIndex]
+                  ? `search-suggestion-${activeSuggestionIndex}`
+                  : undefined
+              }
+              style={{ 
+                width: '100%',
+                padding: '8px 12px', 
+                borderRadius: '5px',
+                border: '1px solid rgba(0,0,0,0.12)',
+                fontSize: '14px',
+                backgroundColor: 'var(--bg-sidebar-clr)',
+              }}
+            />
+            {showSuggestions && pathSuggestions.length > 0 && (
+              <div id="search-suggestions" className="search-suggestions" role="listbox">
+                {pathSuggestions.map((suggestion, index) => (
+                  <button
+                    key={suggestion.path}
+                    id={`search-suggestion-${index}`}
+                    type="button"
+                    role="option"
+                    aria-selected={index === activeSuggestionIndex}
+                    className={`search-suggestion${index === activeSuggestionIndex ? ' is-active' : ''}`}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onMouseEnter={() => setActiveSuggestionIndex(index)}
+                    onClick={() => selectSuggestion(suggestion.path)}
+                  >
+                    <span
+                      className="search-suggestion__dot"
+                      style={{ backgroundColor: suggestion.color }}
+                    />
+                    <span className="search-suggestion__text">
+                      <span className="search-suggestion__key">{suggestion.key}</span>
+                      <span className="search-suggestion__path">{suggestion.path}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <button
             onClick={props.handleSearch}
             style={{ 
