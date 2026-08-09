@@ -61,7 +61,7 @@ export  const getLayoutedElements = (nodes, edges, options = {}) => {
 };
 
 export function InnerFlow(props) {
-  const { fitView, getViewport, setViewport, getNodes } = useReactFlow();
+  const { fitView, getViewport, setViewport, getNodes, zoomIn, zoomOut } = useReactFlow();
   const {
     nodes,
     edges,
@@ -235,20 +235,71 @@ export function InnerFlow(props) {
         pannable
         zoomable
       />
-      <Controls showInteractive={false} />      
       <Panel position="bottom-center" className="zoom-panel">
-        <span className="zoom-panel__value">{Math.round(zoomLevel * 100)}%</span>
-        <button type="button" onClick={() => setZoomPreset(0.25)}>
-          25%
+        <button
+          type="button"
+          onClick={() => zoomOut({ duration: 300 })}
+          title="Zoom Out (-)"
+          className="zoom-panel__btn zoom-panel__btn--icon"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
         </button>
-        <button type="button" onClick={() => setZoomPreset(0.5)}>
+
+        <span className="zoom-panel__value">{Math.round(zoomLevel * 100)}%</span>
+
+        <button
+          type="button"
+          onClick={() => zoomIn({ duration: 300 })}
+          title="Zoom In (+)"
+          className="zoom-panel__btn zoom-panel__btn--icon"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+        </button>
+
+        <div className="zoom-panel__divider" />
+
+        <button
+          type="button"
+          onClick={() => setZoomPreset(0.5)}
+          className={`zoom-panel__btn ${Math.round(zoomLevel * 100) === 50 ? 'is-active' : ''}`}
+        >
           50%
         </button>
-        <button type="button" onClick={() => setZoomPreset(1)}>
+        <button
+          type="button"
+          onClick={() => setZoomPreset(1)}
+          className={`zoom-panel__btn ${Math.round(zoomLevel * 100) === 100 ? 'is-active' : ''}`}
+        >
           100%
         </button>
-        <button type="button" onClick={fitAllNodes}>
-          Fit
+        <button
+          type="button"
+          onClick={() => setZoomPreset(1.5)}
+          className={`zoom-panel__btn ${Math.round(zoomLevel * 100) === 150 ? 'is-active' : ''}`}
+        >
+          150%
+        </button>
+
+        <div className="zoom-panel__divider" />
+
+        <button
+          type="button"
+          onClick={fitAllNodes}
+          title="Fit view to show all nodes"
+          className="zoom-panel__btn zoom-panel__btn--fit"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 3 21 3 21 9" />
+            <polyline points="9 21 3 21 3 15" />
+            <line x1="21" y1="3" x2="14" y2="10" />
+            <line x1="3" y1="21" x2="10" y2="14" />
+          </svg>
+          Fit View
         </button>
       </Panel>
       <Panel position="top-left" className="search-panel">
