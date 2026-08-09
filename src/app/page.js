@@ -51,9 +51,11 @@ export default function Page() {
   const [lastSearchResult, setLastSearchResult] = useState(null);
   const [reactFlowHelpers, setReactFlowHelpers] = useState(null);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [layoutDirection, setLayoutDirection] = useState("DOWN");
 
   const onLayout = useCallback(
     ({ direction }, initialNodes = null, highlightIds = []) => {
+      setLayoutDirection(direction);
       const opts = { "elk.direction": direction, ...elkOptions };
       let ns, es;
       if (initialNodes === null) {
@@ -257,10 +259,42 @@ export default function Page() {
     }
   }, [needToRenderJson, onLayout]);
 
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
   return (
     <ReactFlowProvider>
       <div className="app-cont">
-        <div className="react-flow-cont" style={{ width: "80vw", minHeight: "100vh" }}>
+        {/* Mobile Header Bar */}
+        <header className="mobile-header">
+          <div className="mobile-header__brand">
+            <span className="sidebar__brand-dot" />
+            <h1 className="mobile-header__title">JSON Visualizer</h1>
+          </div>
+          <button
+            type="button"
+            className="mobile-header__toggle-btn"
+            onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+            aria-label="Toggle JSON sidebar menu"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+            <span>JSON Editor</span>
+          </button>
+        </header>
+
+        {/* Backdrop for Mobile Drawer */}
+        {isMobileSidebarOpen && (
+          <div
+            className="sidebar-backdrop"
+            onClick={() => setIsMobileSidebarOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
+        <div className="react-flow-cont">
           <InnerFlow
             nodes={nodes}
             edges={edges}
@@ -277,10 +311,16 @@ export default function Page() {
             lastSearchResult={lastSearchResult}
             setReactFlowHelpers={setReactFlowHelpers}
             handleDownload={handleDownload}
+            layoutDirection={layoutDirection}
             onOpenExport={() => setIsExportModalOpen(true)}
+            onOpenSidebar={() => setIsMobileSidebarOpen(true)}
           />
         </div>
-        <Sidebar />
+
+        <Sidebar
+          isOpen={isMobileSidebarOpen}
+          onClose={() => setIsMobileSidebarOpen(false)}
+        />
 
         <ExportModal
           isOpen={isExportModalOpen}

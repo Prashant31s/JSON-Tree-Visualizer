@@ -261,26 +261,26 @@ export function InnerFlow(props) {
           </svg>
         </button>
 
-        <div className="zoom-panel__divider" />
+        <div className="zoom-panel__divider zoom-panel__presets" />
 
         <button
           type="button"
           onClick={() => setZoomPreset(0.5)}
-          className={`zoom-panel__btn ${Math.round(zoomLevel * 100) === 50 ? 'is-active' : ''}`}
+          className={`zoom-panel__btn zoom-panel__presets ${Math.round(zoomLevel * 100) === 50 ? 'is-active' : ''}`}
         >
           50%
         </button>
         <button
           type="button"
           onClick={() => setZoomPreset(1)}
-          className={`zoom-panel__btn ${Math.round(zoomLevel * 100) === 100 ? 'is-active' : ''}`}
+          className={`zoom-panel__btn zoom-panel__presets ${Math.round(zoomLevel * 100) === 100 ? 'is-active' : ''}`}
         >
           100%
         </button>
         <button
           type="button"
           onClick={() => setZoomPreset(1.5)}
-          className={`zoom-panel__btn ${Math.round(zoomLevel * 100) === 150 ? 'is-active' : ''}`}
+          className={`zoom-panel__btn zoom-panel__presets ${Math.round(zoomLevel * 100) === 150 ? 'is-active' : ''}`}
         >
           150%
         </button>
@@ -299,131 +299,148 @@ export function InnerFlow(props) {
             <line x1="21" y1="3" x2="14" y2="10" />
             <line x1="3" y1="21" x2="10" y2="14" />
           </svg>
-          Fit View
+          <span className="zoom-panel__fit-text">Fit View</span>
         </button>
       </Panel>
-      <Panel position="top-left" className="search-panel">
-        <div style={{ 
-          display: 'flex', 
-          gap: '10px', 
-          alignItems: 'center',
-          padding: '10px',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          backgroundColor: 'var(--bg-sidebar-clr)'
-        }}>
-          <div className="search-input-wrap">
-            <input
-              type="text"
-              value={props.searchPath}
-              onChange={(e) => {
-                props.setSearchPath(e.target.value);
-                setShowSuggestions(true);
-                setActiveSuggestionIndex(0);
-              }}
-              onFocus={() => {
-                setShowSuggestions(true);
-                setActiveSuggestionIndex(0);
-              }}
-              onBlur={() => window.setTimeout(() => setShowSuggestions(false), 120)}
-              onKeyDown={handleSearchKeyDown}
-              placeholder="$.user.address.city, items[0].name"
-              role="combobox"
-              aria-autocomplete="list"
-              aria-controls="search-suggestions"
-              aria-expanded={showSuggestions && pathSuggestions.length > 0}
-              aria-activedescendant={
-                pathSuggestions[activeSuggestionIndex]
-                  ? `search-suggestion-${activeSuggestionIndex}`
-                  : undefined
-              }
-              style={{ 
-                width: '100%',
-                padding: '8px 12px', 
-                borderRadius: '5px',
-                border: '1px solid rgba(0,0,0,0.12)',
-                fontSize: '14px',
-                backgroundColor: 'var(--bg-sidebar-clr)',
-              }}
-            />
-            {showSuggestions && pathSuggestions.length > 0 && (
-              <div id="search-suggestions" className="search-suggestions" role="listbox">
-                {pathSuggestions.map((suggestion, index) => (
-                  <button
-                    key={suggestion.path}
-                    id={`search-suggestion-${index}`}
-                    type="button"
-                    role="option"
-                    aria-selected={index === activeSuggestionIndex}
-                    className={`search-suggestion${index === activeSuggestionIndex ? ' is-active' : ''}`}
-                    onMouseDown={(event) => event.preventDefault()}
-                    onMouseEnter={() => setActiveSuggestionIndex(index)}
-                    onClick={() => selectSuggestion(suggestion.path)}
-                  >
-                    <span
-                      className="search-suggestion__dot"
-                      style={{ backgroundColor: suggestion.color }}
-                    />
-                    <span className="search-suggestion__text">
-                      <span className="search-suggestion__key">{suggestion.key}</span>
-                      <span className="search-suggestion__path">{suggestion.path}</span>
-                    </span>
-                  </button>
-                ))}
-              </div>
+      {/* Unified Top Canvas Toolbar Panel */}
+      <Panel position="top-center" className="top-canvas-panel">
+        <div className="top-canvas-toolbar">
+          {/* Search Box Section */}
+          <div className="search-panel__box">
+            <div className="search-input-wrap">
+              <svg
+                className="search-input-icon"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                type="text"
+                className="search-panel__input"
+                value={props.searchPath}
+                onChange={(e) => {
+                  props.setSearchPath(e.target.value);
+                  setShowSuggestions(true);
+                  setActiveSuggestionIndex(0);
+                }}
+                onFocus={() => {
+                  setShowSuggestions(true);
+                  setActiveSuggestionIndex(0);
+                }}
+                onBlur={() => window.setTimeout(() => setShowSuggestions(false), 120)}
+                onKeyDown={handleSearchKeyDown}
+                placeholder="Search JSON path e.g. $.user.name"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-controls="search-suggestions"
+                aria-expanded={showSuggestions && pathSuggestions.length > 0}
+                aria-activedescendant={
+                  pathSuggestions[activeSuggestionIndex]
+                    ? `search-suggestion-${activeSuggestionIndex}`
+                    : undefined
+                }
+              />
+              {props.searchPath && (
+                <button
+                  type="button"
+                  className="search-input-clear-btn"
+                  onClick={() => selectSuggestion("")}
+                  title="Clear search"
+                >
+                  ✕
+                </button>
+              )}
+              {showSuggestions && pathSuggestions.length > 0 && (
+                <div id="search-suggestions" className="search-suggestions" role="listbox">
+                  {pathSuggestions.map((suggestion, index) => (
+                    <button
+                      key={suggestion.path}
+                      id={`search-suggestion-${index}`}
+                      type="button"
+                      role="option"
+                      aria-selected={index === activeSuggestionIndex}
+                      className={`search-suggestion${index === activeSuggestionIndex ? ' is-active' : ''}`}
+                      onMouseDown={(event) => event.preventDefault()}
+                      onMouseEnter={() => setActiveSuggestionIndex(index)}
+                      onClick={() => selectSuggestion(suggestion.path)}
+                    >
+                      <span
+                        className="search-suggestion__dot"
+                        style={{ backgroundColor: suggestion.color }}
+                      />
+                      <span className="search-suggestion__text">
+                        <span className="search-suggestion__key">{suggestion.key}</span>
+                        <span className="search-suggestion__path">{suggestion.path}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button
+              onClick={() => props.handleSearch()}
+              className="search-panel__btn"
+            >
+              Search
+            </button>
+            {props.searchPath.trim() !== '' && (
+              <span className="search-panel__matches">
+                {props.searchResults.length} match{props.searchResults.length !== 1 ? 'es' : ''}
+              </span>
             )}
           </div>
-          <button
-            onClick={() => props.handleSearch()}
-            style={{ 
-              padding: '8px 16px', 
-              backgroundColor: '#10b981', 
-              color: 'white', 
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500'
-            }}
-          >
-            Search
-          </button>
-          {/* {props.searchResults.length > 0 && ( */}
-            <span style={{ 
-              color: '#059669', 
-              fontSize: '14px',
-              fontWeight: '500'
-            }}>
-              {props.searchResults.length} match{props.searchResults.length !== 1 ? 'es' : ''}
-            </span>
-          {/* )} */}
-        </div>
-      </Panel>
 
-      {/* Layout Panel */}
-      <Panel position="top-right" className="react-flow__panel-1">
-        <button onClick={() => props.onLayout({ direction: "DOWN" })} className="panel__btn">
-          Vertical layout
-        </button>
-        <button onClick={() => props.onLayout({ direction: "RIGHT" })}>
-          Horizontal layout
-        </button>
-        {props.onOpenExport && (
-          <button
-            type="button"
-            onClick={props.onOpenExport}
-            style={{
-              backgroundColor: '#3b82f6',
-              color: '#ffffff',
-              fontWeight: '500',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            Export Data 📤
-          </button>
-        )}
+          {/* Layout Controls Section */}
+          <div className="layout-segmented-control">
+            <button
+              type="button"
+              onClick={() => props.onLayout({ direction: "DOWN" })}
+              className={`panel__btn ${props.layoutDirection === 'DOWN' || !props.layoutDirection ? 'is-active' : ''}`}
+              title="Vertical Layout"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <polyline points="19 12 12 19 5 12" />
+              </svg>
+              <span>Vertical</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => props.onLayout({ direction: "RIGHT" })}
+              className={`panel__btn ${props.layoutDirection === 'RIGHT' ? 'is-active' : ''}`}
+              title="Horizontal Layout"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+              <span>Horizontal</span>
+            </button>
+            {props.onOpenExport && (
+              <button
+                type="button"
+                className="panel__btn panel__btn--export"
+                onClick={props.onOpenExport}
+                title="Export JSON Data & Diagrams"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                <span>Export</span>
+              </button>
+            )}
+          </div>
+        </div>
       </Panel>
     </ReactFlow>
   );

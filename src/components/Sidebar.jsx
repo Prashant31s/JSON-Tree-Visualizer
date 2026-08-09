@@ -113,7 +113,7 @@ function CollapsibleJsonNode({ data, label, isLast = true, depth = 0, defaultExp
   );
 }
 
-function Sidebar() {
+function Sidebar({ isOpen, onClose }) {
   const { needToRenderJson, setNeedToRenderJson } = useStore(selector, shallow);
   const [activeTab, setActiveTab] = useState("editor"); // "editor" | "tree"
   const [showUrlInput, setShowUrlInput] = useState(false);
@@ -168,6 +168,7 @@ function Sidebar() {
       if (typeof parsed === "object" && parsed !== null) {
         setError(null);
         setNeedToRenderJson(parsed);
+        if (onClose) onClose(); // Auto-close drawer on mobile when user clicks Run
         return true;
       }
       setError("Input must be a valid JSON object or array");
@@ -225,6 +226,7 @@ function Sidebar() {
       setNeedToRenderJson(data);
       setEditorValue(JSON.stringify(data, null, 2));
       setShowUrlInput(false);
+      if (onClose) onClose();
     } catch (err) {
       console.error("Fetch error:", err);
       setError(`Error fetching URL: ${err.message}. Ensure CORS is enabled.`);
@@ -234,7 +236,7 @@ function Sidebar() {
   };
 
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${isOpen ? "is-open" : ""}`}>
       {/* Sleek Header */}
       <div className="sidebar__header">
         <div className="sidebar__brand">
@@ -259,6 +261,16 @@ function Sidebar() {
             </svg>
             Run
           </button>
+          {onClose && (
+            <button
+              type="button"
+              className="sidebar__close-btn"
+              onClick={onClose}
+              title="Close Panel"
+            >
+              ✕
+            </button>
+          )}
         </div>
       </div>
 
