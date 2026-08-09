@@ -767,20 +767,213 @@ body {
   min-height: 100vh;
 }
 
+/* Tree View Syntax Highlighting & Row Styles (Dark default) */
+.json-tree-container {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.json-tree-row,
+.json-tree-header-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+
+.json-tree-header-row {
+  cursor: pointer;
+  user-select: none;
+}
+
+.json-tree-row:hover,
+.json-tree-header-row:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.json-tree-arrow {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.json-tree-key {
+  color: #c084fc;
+  font-weight: 600;
+}
+
+.json-tree-val-str {
+  color: #34d399;
+}
+
+.json-tree-val-num {
+  color: #38bdf8;
+}
+
+.json-tree-val-bool {
+  color: #f59e0b;
+}
+
+.json-tree-val-null {
+  color: #9ca3af;
+}
+
+.json-tree-bracket-arr {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.json-tree-bracket-obj {
+  color: #60a5fa;
+  font-weight: 600;
+}
+
+.json-tree-preview {
+  color: #9ca3af;
+  font-style: italic;
+  font-size: 11px;
+}
+
+.json-tree-comma {
+  color: #6b7280;
+}
+
 /* Light theme overrides when data-theme="light" is set on <html> */
 [data-theme="light"] {
   --bg: #ffffff;
   --text: #0f172a;
-  --muted: #475569;
-  --bg-sidebar-clr: #f3f4f6;
+  --muted: #64748b;
+  --bg-sidebar-clr: #f8fafc;
   --node-color: #3b82f6;
   --highlight-color: #ef4444;
   --accent: #6366f1;
 }
 
+[data-theme="light"] .sidebar {
+  background-color: #f8fafc;
+  border-left-color: rgba(15, 23, 42, 0.08);
+  box-shadow: -8px 0 32px rgba(15, 23, 42, 0.06);
+}
+
+[data-theme="light"] .sidebar__header {
+  border-bottom-color: rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="light"] .sidebar__title {
+  color: #0f172a;
+}
+
+[data-theme="light"] .sidebar__url-toggle-wrap {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.1);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+[data-theme="light"] .sidebar__url-toggle-btn {
+  color: #475569;
+}
+
+[data-theme="light"] .sidebar__url-toggle-btn:hover {
+  color: #0f172a;
+}
+
 [data-theme="light"] .sidebar__url-input {
-  background-color: rgba(241, 245, 249, 1);
+  background-color: #ffffff;
   border-color: rgba(15, 23, 42, 0.15);
+  color: #0f172a;
+}
+
+[data-theme="light"] .sidebar__tabs {
+  background: #e2e8f0;
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="light"] .sidebar__tab {
+  color: #475569;
+}
+
+[data-theme="light"] .sidebar__tab.is-active {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+
+[data-theme="light"] .sidebar__editor-wrapper,
+[data-theme="light"] .sidebar__tree-wrapper {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+}
+
+[data-theme="light"] .sidebar__editor-toolbar {
+  background: #f1f5f9;
+  border-bottom-color: rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="light"] .sidebar__editor-title {
+  color: #475569;
+}
+
+[data-theme="light"] .sidebar__tool-btn {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.12);
+  color: #1e293b;
+}
+
+[data-theme="light"] .sidebar__tool-btn:hover {
+  background: #eff6ff;
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+[data-theme="light"] .sidebar__textarea {
+  color: #0f172a;
+  background-color: #ffffff;
+}
+
+/* Light Theme Tree View Syntax Colors */
+[data-theme="light"] .json-tree-row:hover,
+[data-theme="light"] .json-tree-header-row:hover {
+  background-color: rgba(37, 99, 235, 0.06);
+}
+
+[data-theme="light"] .json-tree-key {
+  color: #7c3aed; /* vibrant deep violet */
+}
+
+[data-theme="light"] .json-tree-val-str {
+  color: #059669; /* rich emerald green */
+}
+
+[data-theme="light"] .json-tree-val-num {
+  color: #0284c7; /* deep sky blue */
+}
+
+[data-theme="light"] .json-tree-val-bool {
+  color: #d97706; /* warm amber */
+}
+
+[data-theme="light"] .json-tree-val-null {
+  color: #64748b;
+}
+
+[data-theme="light"] .json-tree-bracket-arr {
+  color: #059669;
+}
+
+[data-theme="light"] .json-tree-bracket-obj {
+  color: #2563eb;
+}
+
+[data-theme="light"] .json-tree-preview {
+  color: #64748b;
+}
+
+[data-theme="light"] .json-tree-comma {
+  color: #94a3b8;
 }
 
 /* Keep tooltip dark in both themes */

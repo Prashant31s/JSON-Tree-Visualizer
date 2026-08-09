@@ -23,19 +23,19 @@ function CollapsibleJsonNode({ data, label, isLast = true, depth = 0, defaultExp
   };
 
   const renderValue = (val) => {
-    if (val === null) return <span style={{ color: "#9ca3af" }}>null</span>;
-    if (typeof val === "boolean") return <span style={{ color: "#f59e0b" }}>{String(val)}</span>;
-    if (typeof val === "number") return <span style={{ color: "#38bdf8" }}>{val}</span>;
-    if (typeof val === "string") return <span style={{ color: "#34d399" }}>"{val}"</span>;
+    if (val === null) return <span className="json-tree-val-null">null</span>;
+    if (typeof val === "boolean") return <span className="json-tree-val-bool">{String(val)}</span>;
+    if (typeof val === "number") return <span className="json-tree-val-num">{val}</span>;
+    if (typeof val === "string") return <span className="json-tree-val-str">"{val}"</span>;
     return <span>{String(val)}</span>;
   };
 
   if (!isContainer) {
     return (
-      <div style={{ paddingLeft: `${depth * 14}px`, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace", fontSize: "12px", lineHeight: "1.6" }}>
-        {label && <span style={{ color: "#c084fc", fontWeight: "600" }}>{label}: </span>}
+      <div className="json-tree-row" style={{ paddingLeft: `${depth * 14}px` }}>
+        {label && <span className="json-tree-key">{label}: </span>}
         {renderValue(data)}
-        {!isLast && <span style={{ color: "#6b7280" }}>,</span>}
+        {!isLast && <span className="json-tree-comma">,</span>}
       </div>
     );
   }
@@ -43,29 +43,22 @@ function CollapsibleJsonNode({ data, label, isLast = true, depth = 0, defaultExp
   const entries = isArray ? data.map((item, i) => [i, item]) : Object.entries(data);
 
   return (
-    <div style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace", fontSize: "12px", lineHeight: "1.6" }}>
+    <div className="json-tree-container">
       <div
         onClick={() => setIsExpanded(!isExpanded)}
-        style={{
-          paddingLeft: `${depth * 14}px`,
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-          userSelect: "none",
-          paddingTop: "1px",
-          paddingBottom: "1px",
-        }}
+        className="json-tree-header-row"
+        style={{ paddingLeft: `${depth * 14}px` }}
       >
         <svg
           width="10"
           height="10"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#9ca3af"
+          stroke="currentColor"
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
+          className="json-tree-arrow"
           style={{
             transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
             transition: "transform 0.15s ease",
@@ -74,17 +67,17 @@ function CollapsibleJsonNode({ data, label, isLast = true, depth = 0, defaultExp
         >
           <polyline points="9 18 15 12 9 6" />
         </svg>
-        {label && <span style={{ color: "#c084fc", fontWeight: "600" }}>{label}: </span>}
-        <span style={{ color: isArray ? "#10b981" : "#60a5fa", fontWeight: "600" }}>
+        {label && <span className="json-tree-key">{label}: </span>}
+        <span className={isArray ? "json-tree-bracket-arr" : "json-tree-bracket-obj"}>
           {isArray ? "[" : "{"}
         </span>
         {!isExpanded && (
-          <span style={{ color: "#9ca3af", fontStyle: "italic", fontSize: "11px" }}>
+          <span className="json-tree-preview">
             {" "}{getPreview()}{" "}
           </span>
         )}
         {!isExpanded && (
-          <span style={{ color: isArray ? "#10b981" : "#60a5fa", fontWeight: "600" }}>
+          <span className={isArray ? "json-tree-bracket-arr" : "json-tree-bracket-obj"}>
             {isArray ? "]" : "}"}
             {!isLast && ","}
           </span>
@@ -103,7 +96,7 @@ function CollapsibleJsonNode({ data, label, isLast = true, depth = 0, defaultExp
               defaultExpandedDepth={defaultExpandedDepth}
             />
           ))}
-          <div style={{ paddingLeft: `${depth * 14 + 18}px`, color: isArray ? "#10b981" : "#60a5fa", fontWeight: "600" }}>
+          <div className={`json-tree-closing ${isArray ? "json-tree-bracket-arr" : "json-tree-bracket-obj"}`} style={{ paddingLeft: `${depth * 14 + 18}px` }}>
             {isArray ? "]" : "}"}
             {!isLast && ","}
           </div>
