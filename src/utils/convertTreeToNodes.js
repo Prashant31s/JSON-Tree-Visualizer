@@ -43,12 +43,14 @@ function addRootNode(node, highlightedIds = []) {
   const newNode = {
     id: node.id,
     data: { 
+      nodeId: node.id,
       label: node.value,
       path: formatJsonPath(nodePath),
       pathParts: nodePath,
       value: node.value,
       color: isHighlighted ? color : '#3b82f6',
-      isHighlighted
+      isHighlighted,
+      hasChildren: Boolean(node.children && node.children.length > 0)
     },
     position: { x: 0, y: 0 },
     type: 'jsonVis',
@@ -69,6 +71,7 @@ function addChildNode(node, parentNode, highlightedIds = [], parentPath = []) {
   const newNode = {
     id: node.id,
     data: {
+      nodeId: node.id,
       label: typeof node.value === "string" || typeof node.value === "number" || typeof node.value === "boolean"
         ? node.value
         : node.value,
@@ -76,7 +79,8 @@ function addChildNode(node, parentNode, highlightedIds = [], parentPath = []) {
       pathParts: nodePath,
       value: node.value,
       color: color,
-      isHighlighted
+      isHighlighted,
+      hasChildren: Boolean(node.children && node.children.length > 0)
     },
     type: 'jsonVis',
     position: { x: 0, y: 0 },
@@ -103,8 +107,8 @@ function addChildNode(node, parentNode, highlightedIds = [], parentPath = []) {
   edges = [...edges, newEdge];
 }
 
-function traverseNodeChild(arrayOfNode, parentNode, highlightedIds = [], parentPath = []) {
-  if (arrayOfNode.length <= 0) {
+function traverseNodeChild(arrayOfNode, parentNode, highlightedIds = [], parentPath = [], currentDepth = 1, maxDepth = Infinity) {
+  if (!arrayOfNode || arrayOfNode.length <= 0 || currentDepth > maxDepth) {
     return;
   }
   arrayOfNode.forEach((node) => {
@@ -114,20 +118,22 @@ function traverseNodeChild(arrayOfNode, parentNode, highlightedIds = [], parentP
       parentNode.children[0].id === node.id;
     const nodePath = isPrimitiveValueNode ? parentPath : [...parentPath, node.key];
     addChildNode(node, parentNode, highlightedIds, parentPath);
-    if (node.children && node.children.length > 0) {
-      traverseNodeChild(node.children, node, highlightedIds, nodePath);
+    if (node.children && node.children.length > 0 && currentDepth < maxDepth) {
+      traverseNodeChild(node.children, node, highlightedIds, nodePath, currentDepth + 1, maxDepth);
     }
   });
 }
 
-function convertTreeToNodes(nodeTree, isRoot = false, highlightedIds = []) {
+function convertTreeToNodes(nodeTree, isRoot = false, highlightedIds = [], maxDepth = Infinity) {
   if (isRoot === true) {
     nodes = [];
     edges = [];
-    addRootNode(nodeTree, highlightedIds);
-    convertTreeToNodes(nodeTree, false, highlightedIds);
-  } else {
-    traverseNodeChild(nodeTree.children, nodeTree, highlightedIds, []);
+    if (nodeTree) {
+      addRootNode(nodeTree, highlightedIds);
+      if (maxDepth >= 1 && nodeTree.children) {
+        traverseNodeChild(nodeTree.children, nodeTree, highlightedIds, [], 1, maxDepth);
+      }
+    }
   }
 
   return [nodes, edges];

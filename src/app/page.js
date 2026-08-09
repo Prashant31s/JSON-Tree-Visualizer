@@ -30,6 +30,18 @@ const elkOptions = {
   "elk.edgeRouting": "SPLINES",
 };
 
+function findNodeById(tree, id) {
+  if (!tree) return null;
+  if (tree.id === id) return tree;
+  if (tree.children && tree.children.length > 0) {
+    for (const child of tree.children) {
+      const found = findNodeById(child, id);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
 export default function Page() {
   const {
     nodes,
@@ -47,11 +59,31 @@ export default function Page() {
     setHighlightedNodeIds,
     searchResults,
     setSearchResults,
+    focusedNode,
+    setFocusedNode,
+    maxDepth,
+    setMaxDepth,
   } = useStore(selector, shallow);
   const [lastSearchResult, setLastSearchResult] = useState(null);
   const [reactFlowHelpers, setReactFlowHelpers] = useState(null);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [layoutDirection, setLayoutDirection] = useState("DOWN");
+
+  const handleFocusNode = useCallback((nodeId) => {
+    if (!treeData || !nodeId) return;
+    const targetNode = findNodeById(treeData, nodeId);
+    if (targetNode) {
+      setFocusedNode(targetNode);
+    }
+  }, [treeData, setFocusedNode]);
+
+  const handleExitFocus = useCallback(() => {
+    setFocusedNode(null);
+  }, [setFocusedNode]);
+
+  const handleSetMaxDepth = useCallback((depth) => {
+    setMaxDepth(depth);
+  }, [setMaxDepth]);
 
   const onLayout = useCallback(
     ({ direction }, initialNodes = null, highlightIds = []) => {
@@ -59,22 +91,35 @@ export default function Page() {
       const opts = { "elk.direction": direction, ...elkOptions };
       let ns, es;
       if (initialNodes === null) {
-        const nodeTree = convertJsonToTree(needToRenderJson);
-        setTreeData(nodeTree);
-        [ns, es] = convertTreeToNodes(nodeTree, true, highlightIds);
+        let nodeTree = treeData;
+        if (!nodeTree) {
+          nodeTree = convertJsonToTree(needToRenderJson);
+          setTreeData(nodeTree);
+        }
+        
+        const activeTree = focusedNode ? (findNodeById(nodeTree, focusedNode.id) || nodeTree) : nodeTree;
+        [ns, es] = convertTreeToNodes(activeTree, true, highlightIds, maxDepth);
       } else {
         ns = initialNodes[0];
         es = initialNodes[1];
       }
 
-      getLayoutedElements(ns, es, opts).then(
+      const nsWithFocus = ns.map((n) => ({
+        ...n,
+        data: {
+          ...n.data,
+          onFocusNode: handleFocusNode,
+        },
+      }));
+
+      getLayoutedElements(nsWithFocus, es, opts).then(
         ({ nodes: layoutedNodes, edges: layoutedEdges }) => {
           setNodes(layoutedNodes);
           setEdges(layoutedEdges);
         }
       );
     },
-    [needToRenderJson, setNodes, setEdges, setTreeData]
+    [needToRenderJson, setNodes, setEdges, setTreeData, treeData, focusedNode, maxDepth, handleFocusNode]
   );
 
   const handleSearch = useCallback((selectedPath = searchPath) => {
@@ -255,9 +300,9 @@ export default function Page() {
 
   useLayoutEffect(() => {
     if (needToRenderJson) {
-      onLayout({ direction: "DOWN" });
+      onLayout({ direction: layoutDirection });
     }
-  }, [needToRenderJson, onLayout]);
+  }, [needToRenderJson, focusedNode, maxDepth, onLayout, layoutDirection]);
 
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
@@ -312,6 +357,10 @@ export default function Page() {
             setReactFlowHelpers={setReactFlowHelpers}
             handleDownload={handleDownload}
             layoutDirection={layoutDirection}
+            focusedNode={focusedNode}
+            onExitFocus={handleExitFocus}
+            maxDepth={maxDepth}
+            onSetMaxDepth={handleSetMaxDepth}
             onOpenExport={() => setIsExportModalOpen(true)}
             onOpenSidebar={() => setIsMobileSidebarOpen(true)}
           />

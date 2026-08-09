@@ -1653,9 +1653,140 @@ button:focus-visible {
   flex-shrink: 0;
 }
 
+/* Node Focus Action Button on Canvas */
+.node-focus-btn {
+  background: transparent;
+  border: none;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 1px 4px;
+  border-radius: 4px;
+  line-height: 1;
+  opacity: 0.7;
+  transition: all 0.15s ease;
+}
+
+.node-focus-btn:hover {
+  opacity: 1;
+  transform: scale(1.15);
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Focus Mode Banner Bar */
+.focus-mode-banner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 12px;
+  background-color: rgba(239, 68, 68, 0.16);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 10px;
+  color: #f87171;
+  font-size: 12px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  margin-bottom: 8px;
+  animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.focus-mode-banner__icon {
+  font-size: 14px;
+}
+
+.focus-mode-banner__text {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.focus-mode-banner__exit-btn {
+  background-color: #ef4444;
+  color: #ffffff;
+  border: none;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.focus-mode-banner__exit-btn:hover {
+  background-color: #dc2626;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+/* Depth Controls & Divider */
+.depth-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.depth-controls__label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 0 4px 0 6px;
+  letter-spacing: 0.02em;
+}
+
+.depth-btn {
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 5px;
+  border: none;
+  background-color: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.depth-btn:hover {
+  color: var(--text);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.depth-btn.is-active {
+  background-color: rgba(99, 102, 241, 0.25) !important;
+  color: #818cf8 !important;
+  font-weight: 700;
+}
+
+[data-theme="light"] .depth-btn.is-active {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+  color: #4f46e5 !important;
+}
+
+.layout-controls-divider {
+  width: 1px;
+  height: 18px;
+  background-color: rgba(255, 255, 255, 0.12);
+  margin: 0 4px;
+}
+
+[data-theme="light"] .layout-controls-divider {
+  background-color: rgba(15, 23, 42, 0.12);
+}
+
 /* Layout Panel & Segmented Control */
 .layout-segmented-control {
   display: flex;
+  align-items: center;
   gap: 3px;
   background-color: var(--bg-sidebar-clr);
   padding: 3px;
@@ -1665,6 +1796,12 @@ button:focus-visible {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   flex-shrink: 0;
+}
+
+.layout-buttons-group {
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }
 
 [data-theme="light"] .layout-segmented-control {
@@ -1814,10 +1951,49 @@ button:focus-visible {
   .layout-segmented-control {
     width: 100%;
     display: flex;
-    gap: 2px;
-    padding: 3px;
-    border-radius: 10px;
+    flex-direction: column;
+    gap: 6px;
+    padding: 6px;
+    border-radius: 12px;
     box-sizing: border-box;
+  }
+
+  .depth-controls {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  [data-theme="light"] .depth-controls {
+    border-bottom-color: rgba(15, 23, 42, 0.08);
+  }
+
+  .depth-controls__label {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 0 4px 0 2px;
+  }
+
+  .depth-btn {
+    flex: 1;
+    text-align: center;
+    padding: 5px 2px;
+    font-size: 11px;
+  }
+
+  .layout-controls-divider {
+    display: none !important;
+  }
+
+  .layout-buttons-group {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 
   .layout-segmented-control .panel__btn {

@@ -53,11 +53,13 @@ const useStore = create((set, get) => ({
     ],
   },
   
-  // Search-related state
+  // Search and view controls state
   treeData: null,
   searchPath: '',
   highlightedNodeIds: [],
   searchResults: [],
+  focusedNode: null, // null or { id: string, path: string, treeNode: object }
+  maxDepth: Infinity, // Infinity | 1 | 2 | 3
 
   // Handlers
   onNodesChange: (changes) => set({ nodes: applyNodeChanges(changes, get().nodes) }),
@@ -73,7 +75,9 @@ const useStore = create((set, get) => ({
       searchPath: '',
       highlightedNodeIds: [],
       searchResults: [],
-      treeData: null
+      treeData: null,
+      focusedNode: null,
+      maxDepth: Infinity,
     });
   },
   
@@ -81,6 +85,8 @@ const useStore = create((set, get) => ({
   setSearchPath: (path) => set({ searchPath: path }),
   setHighlightedNodeIds: (ids) => set({ highlightedNodeIds: ids }),
   setSearchResults: (results) => set({ searchResults: results }),
+  setFocusedNode: (focusedNode) => set({ focusedNode }),
+  setMaxDepth: (maxDepth) => set({ maxDepth }),
 }));
 
 export default useStore;

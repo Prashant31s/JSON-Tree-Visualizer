@@ -136,7 +136,7 @@ function JsonVisNode({ data, targetPosition, sourcePosition }) {
                     borderRadius: '12px 12px 0 0',
                 }} />
 
-                {/* Header row: type badge + icon */}
+                {/* Header row: type badge + focus action + icon */}
                 <div style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -144,20 +144,35 @@ function JsonVisNode({ data, targetPosition, sourcePosition }) {
                     padding: '6px 10px 4px',
                     gap: '6px',
                 }}>
-                    <span style={{
-                        fontSize: '9px',
-                        fontWeight: '700',
-                        letterSpacing: '0.08em',
-                        textTransform: 'uppercase',
-                        color: nodeColor,
-                        padding: '2px 6px',
-                        borderRadius: '999px',
-                        backgroundColor: nodeColor + '22',
-                        border: `1px solid ${nodeColor}44`,
-                        flexShrink: 0,
-                    }}>
-                        {typeLabel}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{
+                            fontSize: '9px',
+                            fontWeight: '700',
+                            letterSpacing: '0.08em',
+                            textTransform: 'uppercase',
+                            color: nodeColor,
+                            padding: '2px 6px',
+                            borderRadius: '999px',
+                            backgroundColor: nodeColor + '22',
+                            border: `1px solid ${nodeColor}44`,
+                            flexShrink: 0,
+                        }}>
+                            {typeLabel}
+                        </span>
+                        {data.hasChildren && data.onFocusNode && (
+                            <button
+                                type="button"
+                                className="node-focus-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    data.onFocusNode(data.nodeId);
+                                }}
+                                title="Focus on this subtree"
+                            >
+                                🎯
+                            </button>
+                        )}
+                    </div>
                     <span style={{
                         fontSize: '11px',
                         color: 'rgba(255,255,255,0.35)',

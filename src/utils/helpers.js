@@ -12,7 +12,7 @@ import ELK from "elkjs/lib/elk.bundled.js";
 
 const elk = new ELK();
 
-export  const selector = (state) => ({
+export const selector = (state) => ({
   nodes: state.nodes,
   edges: state.edges,
   viewport: state.viewport,
@@ -30,6 +30,10 @@ export  const selector = (state) => ({
   setHighlightedNodeIds: state.setHighlightedNodeIds,
   searchResults: state.searchResults,
   setSearchResults: state.setSearchResults,
+  focusedNode: state.focusedNode,
+  setFocusedNode: state.setFocusedNode,
+  maxDepth: state.maxDepth,
+  setMaxDepth: state.setMaxDepth,
 });
 
 export  const getLayoutedElements = (nodes, edges, options = {}) => {
@@ -304,6 +308,24 @@ export function InnerFlow(props) {
       </Panel>
       {/* Unified Top Canvas Toolbar Panel */}
       <Panel position="top-center" className="top-canvas-panel">
+        {/* Focus Mode Banner Overlay when Subtree Focus is Active */}
+        {props.focusedNode && (
+          <div className="focus-mode-banner">
+            <span className="focus-mode-banner__icon">🎯</span>
+            <span className="focus-mode-banner__text">
+              Subtree Focus: <strong>{props.focusedNode.key || 'Node'}</strong>
+            </span>
+            <button
+              type="button"
+              className="focus-mode-banner__exit-btn"
+              onClick={props.onExitFocus}
+              title="Exit Subtree Focus Mode"
+            >
+              Exit Focus ✕
+            </button>
+          </div>
+        )}
+
         <div className="top-canvas-toolbar">
           {/* Search Box Section */}
           <div className="search-panel__box">
@@ -398,47 +420,88 @@ export function InnerFlow(props) {
             )}
           </div>
 
-          {/* Layout Controls Section */}
+          {/* Layout & Depth Controls Section */}
           <div className="layout-segmented-control">
-            <button
-              type="button"
-              onClick={() => props.onLayout({ direction: "DOWN" })}
-              className={`panel__btn ${props.layoutDirection === 'DOWN' || !props.layoutDirection ? 'is-active' : ''}`}
-              title="Vertical Layout"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <polyline points="19 12 12 19 5 12" />
-              </svg>
-              <span>Vertical</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => props.onLayout({ direction: "RIGHT" })}
-              className={`panel__btn ${props.layoutDirection === 'RIGHT' ? 'is-active' : ''}`}
-              title="Horizontal Layout"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-              <span>Horizontal</span>
-            </button>
-            {props.onOpenExport && (
+            {/* Depth Level Filter Pills */}
+            <div className="depth-controls" title="Limit Rendered Tree Depth">
+              <span className="depth-controls__label">Depth:</span>
               <button
                 type="button"
-                className="panel__btn panel__btn--export"
-                onClick={props.onOpenExport}
-                title="Export JSON Data & Diagrams"
+                onClick={() => props.onSetMaxDepth(Infinity)}
+                className={`depth-btn ${props.maxDepth === Infinity ? 'is-active' : ''}`}
+                title="Show All Depths"
+              >
+                All
+              </button>
+              <button
+                type="button"
+                onClick={() => props.onSetMaxDepth(1)}
+                className={`depth-btn ${props.maxDepth === 1 ? 'is-active' : ''}`}
+                title="Limit to Depth Level 1"
+              >
+                L1
+              </button>
+              <button
+                type="button"
+                onClick={() => props.onSetMaxDepth(2)}
+                className={`depth-btn ${props.maxDepth === 2 ? 'is-active' : ''}`}
+                title="Limit to Depth Level 2"
+              >
+                L2
+              </button>
+              <button
+                type="button"
+                onClick={() => props.onSetMaxDepth(3)}
+                className={`depth-btn ${props.maxDepth === 3 ? 'is-active' : ''}`}
+                title="Limit to Depth Level 3"
+              >
+                L3
+              </button>
+            </div>
+
+            <div className="layout-controls-divider" />
+
+            <div className="layout-buttons-group">
+              <button
+                type="button"
+                onClick={() => props.onLayout({ direction: "DOWN" })}
+                className={`panel__btn ${props.layoutDirection === 'DOWN' || !props.layoutDirection ? 'is-active' : ''}`}
+                title="Vertical Layout"
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="17 8 12 3 7 8" />
-                  <line x1="12" y1="3" x2="12" y2="15" />
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <polyline points="19 12 12 19 5 12" />
                 </svg>
-                <span>Export</span>
+                <span>Vertical</span>
               </button>
-            )}
+              <button
+                type="button"
+                onClick={() => props.onLayout({ direction: "RIGHT" })}
+                className={`panel__btn ${props.layoutDirection === 'RIGHT' ? 'is-active' : ''}`}
+                title="Horizontal Layout"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+                <span>Horizontal</span>
+              </button>
+              {props.onOpenExport && (
+                <button
+                  type="button"
+                  className="panel__btn panel__btn--export"
+                  onClick={props.onOpenExport}
+                  title="Export JSON Data & Diagrams"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                  <span>Export</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </Panel>
