@@ -62,6 +62,47 @@ html {
   align-items: center;
   padding: 0 10px;
 }
+
+.sidebar__url-cont {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 0 10px;
+}
+
+.sidebar__url-input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background-color: rgba(0, 0, 0, 0.2);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.sidebar__url-input:focus {
+  border-color: #3b82f6;
+}
+
+.sidebar__url-btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  background-color: #3b82f6;
+  color: #fff;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.sidebar__url-btn:hover {
+  background-color: #2563eb;
+}
+.sidebar__url-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
 .sidebar__title-cont h1 {
   font-size: 1.3rem;
 }
@@ -373,6 +414,11 @@ body {
   --node-color: #3b82f6;
   --highlight-color: #ef4444;
   --accent: #6366f1;
+}
+
+[data-theme="light"] .sidebar__url-input {
+  background-color: rgba(241, 245, 249, 1);
+  border-color: rgba(15, 23, 42, 0.15);
 }
 
 /* Keep tooltip dark in both themes */

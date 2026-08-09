@@ -12,6 +12,8 @@ function Sidebar() {
   const { needToRenderJson, setNeedToRenderJson } = useStore(selector, shallow);
   const textareaEl = useRef(null);
   const [error, setError] = useState(null);
+  const [url, setUrl] = useState("");
+  const [isFetching, setIsFetching] = useState(false);
   const jsonString = JSON.stringify(needToRenderJson, null, 2);
   const [theme, setTheme] = useState('dark');
 
@@ -65,6 +67,39 @@ function Sidebar() {
     }
   };
 
+  const handleFetchUrl = async () => {
+    if (!url.trim()) {
+      setError("Please enter a valid URL");
+      return;
+    }
+    
+    setIsFetching(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      // Update the store
+      setNeedToRenderJson(data);
+      
+      // Update the textarea if it exists
+      if (textareaEl.current) {
+        textareaEl.current.value = JSON.stringify(data, null, 2);
+      }
+      
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setError(`Error fetching URL: ${err.message}. Make sure the URL returns valid JSON and has CORS enabled.`);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
   return (
     <div className="sidebar">
       <div className="sidebar__title-cont">
@@ -79,7 +114,8 @@ function Sidebar() {
               borderRadius: '6px',
               background: 'transparent',
               color: 'inherit',
-              border: '1px solid rgba(0,0,0,0.08)'
+              border: '1px solid rgba(0,0,0,0.08)',
+              cursor: 'pointer'
             }}
           >
             {theme === 'dark' ? '🌙' : '☀️'}
@@ -93,6 +129,29 @@ function Sidebar() {
           </button>
         </div>
       </div>
+      
+      <div className="sidebar__url-cont">
+        <input 
+          className="sidebar__url-input"
+          type="text" 
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="Paste API or GitHub Raw URL"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleFetchUrl();
+            }
+          }}
+        />
+        <button 
+          className="sidebar__url-btn"
+          onClick={handleFetchUrl}
+          disabled={isFetching}
+        >
+          {isFetching ? 'Fetching...' : 'Fetch'}
+        </button>
+      </div>
+
       <textarea
         className="sidebar__text-cont"
         name=""
@@ -103,7 +162,7 @@ function Sidebar() {
         ref={textareaEl}
       ></textarea>
       {error && (
-        <div className="sidebar__error">
+        <div className="sidebar__error" style={{ color: 'red', marginTop: '8px', fontSize: '0.9rem', wordBreak: 'break-word' }}>
           {error}
         </div>
       )}
